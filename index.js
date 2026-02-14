@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, PermissionOverwrites } = require('discord.js');
 require('dotenv').config();
 
 const client = new Client({ 
@@ -95,11 +95,31 @@ client.on('interactionCreate', async interaction => {
         day_subject_cat = await interaction.guild.channels.create({
             name: "Coding Club - " + new Date().toLocaleDateString('fr-FR'),
             type: 4,
+            permissionOverwrites: [
+                {
+                    id: interaction.guild.roles.everyone.id,
+                    deny: ['ViewChannel', 'SendMessages'],
+                },
+                {
+                    id: day_role.id,
+                    allow: ['ViewChannel'],
+                },
+            ],
         });
         day_subject_room = await interaction.guild.channels.create({
             name: "🎲-sujet",
             type: 0,
             parent: day_subject_cat.id,
+            permissionOverwrites: [
+                {
+                    id: interaction.guild.roles.everyone.id,
+                    deny: ['ViewChannel', 'SendMessages'],
+                },
+                {
+                    id: day_role.id,
+                    allow: ['ViewChannel'],
+                },
+            ],
         });
         await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${day_role.name}** !\n✅ La catégorie d'aujourd'hui a été créée !`, ephemeral: false});
     }
