@@ -66,6 +66,10 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.commandName === 'dayrole') {
         const role = interaction.options.getRole('role');
+        if (!interaction.member.permissions.has('ManageRoles')) {
+            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les rôles !", ephemeral: true });
+            return;
+        }
         day_role = role;
         await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${role.name}** !`, ephemeral: false});
     }
