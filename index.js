@@ -19,6 +19,15 @@ const commands = [
     // ),
     new SlashCommandBuilder().setName('today_create').setDescription('Crée le rôle, la catégorie coding club du jour et les salons associés à celle-ci !'),
     new SlashCommandBuilder().setName('present').setDescription('Indique si tu participes au coding club du jour !'),
+    new SlashCommandBuilder().setName('flag').setDescription('Avertissement').addUserOption(option =>
+        option.setName('user')
+            .setDescription('L\'utilisateur à avertir')
+            .setRequired(true)
+    ).addStringOption(option =>
+        option.setName('reason')
+            .setDescription('La raison de l\'avertissement')
+            .setRequired(true)
+    ),
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
@@ -122,6 +131,13 @@ client.on('interactionCreate', async interaction => {
             ],
         });
         await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${day_role.name}** !\n✅ La catégorie d'aujourd'hui a été créée !`, ephemeral: false});
+    }
+
+    if (interaction.commandName === 'flag') {
+        if (!interaction.member.permissions.has('ManageMembers')) {
+            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les membres !", ephemeral: true });
+            return;
+        }
     }
 });
 
