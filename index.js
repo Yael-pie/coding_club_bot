@@ -54,7 +54,7 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
     if (interaction.guild != 1434849259747938385) {
-        await interaction.reply({ content: "❌ Ce bot est réservé au coding club petit malin !", ephemeral: true });
+        await interaction.reply({ content: "❌ Ce bot est réservé au coding club petit malin !", flags: 64 });
         return;
     }
 
@@ -71,21 +71,21 @@ client.on('interactionCreate', async interaction => {
         const membre = interaction.member;
 
         if (day_role === null) {
-            await interaction.reply({ content: "❌ Le rôle du coding club du jour n'est pas encore défini. Appelle quelqu'un du staff !", ephemeral: false });
+            await interaction.reply({ content: "❌ Le rôle du coding club du jour n'est pas encore défini. Appelle quelqu'un du staff !" });
             return;
         }
         try {
             await membre.roles.add(day_role);
-            await interaction.reply({ content: `✅ Tu participes au coding club du jour ! (**${day_role.name}**) !`, ephemeral: false});
+            await interaction.reply({ content: `✅ Tu participes au coding club du jour ! (**${day_role.name}**) !` });
         } catch (error) {
             console.error(error);
-            await interaction.reply({ content: "❌ Erreur : Appelle quelqu'un du staff", ephemeral: false });
+            await interaction.reply({ content: "❌ Erreur : Appelle quelqu'un du staff" });
         }
     }
 
     if (interaction.commandName === 'today_create') {
         if (!interaction.member.permissions.has('ManageRoles') || !interaction.member.permissions.has('ManageChannels')) {
-            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les rôles ou de géérer les salons !", ephemeral: true });
+            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les rôles ou de géérer les salons !", flags: 64 });
             return;
         }
 
@@ -122,12 +122,12 @@ client.on('interactionCreate', async interaction => {
                 },
             ],
         });
-        await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${day_role.name}** !\n✅ La catégorie d'aujourd'hui a été créée !`, ephemeral: false});
+        await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${day_role.name}** !\n✅ La catégorie d'aujourd'hui a été créée !` });
     }
 
     if (interaction.commandName === 'flag') {
         if (!interaction.member.permissions.has('ManageMembers')) {
-            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les membres !", ephemeral: true });
+            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les membres !", flags: 64 });
             return;
         }
         let user = interaction.options.getUser('user');
@@ -141,32 +141,33 @@ client.on('interactionCreate', async interaction => {
         flags[user.id].push({ raison: reason, date: new Date().toISOString(), par: interaction.user.tag, nom: display_name, tag: tag });
         fs.writeFileSync('./flags.json', JSON.stringify(flags, null, 2));
 
-        await interaction.reply({ content: `✅ ${display_name} (${tag}) a été averti pour la raison suivante : **${reason}**`, ephemeral: false });
+        await interaction.reply({ content: `✅ ${display_name} (${tag}) a été averti pour la raison suivante : **${reason}**` });
     }
 
     if (interaction.commandName === 'flag_list') {
         if (!interaction.member.permissions.has('ManageMembers')) {
-            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les membres !", ephemeral: true });
+            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les membres !", flags: 64 });
             return;
         }
         let user = interaction.options.getUser('user');
 
         if (user) {
             if (!flags[user.id]) {
-                await interaction.reply({ content: "✅ L'utilisateur n'a aucun avertissement !", ephemeral: true });
+                await interaction.reply({ content: "✅ L'utilisateur n'a aucun avertissement !", flags: 64 });
                 return;
             }
-            let response = "📋 **Liste des avertissements de :" + user.displayName + " aka (" + user.tag + ")\n**";
+            let response = "📋 Liste des avertissements de : " + user.displayName + " **aka** (" + user.tag + ")\n";
             for (let i = 0; i < flags[user.id].length; i++) {
                 response += `**${i + 1}.** ${flags[user.id][i].raison} - ${flags[user.id][i].date} par ${flags[user.id][i].par}\n`;
             }
-            await interaction.reply({ content: response, ephemeral: false });
+            await interaction.reply({ content: response });
+            return;
         }
-        await interaction.reply({ content: "ça arrive bientôt no problemo...", ephemeral: false });
+        await interaction.reply({ content: "ça arrive bientôt no problemo..." });
     }
 });
 
-client.once('ready', () => {
+client.once('clientReady', () => {
     console.log(`✅ ${client.user.tag} est en ligne`);
 });
 
