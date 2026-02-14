@@ -17,6 +17,7 @@ const commands = [
             .setDescription('Le rôle du coding club du jour à donner aux participants')
             .setRequired(true)
     ),
+    new SlashCommandBuilder().setName('today_create').setDescription('Crée le rôle, la catégorie coding club du jour et les salons associés à celle-ci !'),
     new SlashCommandBuilder().setName('present').setDescription('Indique si tu participes au coding club du jour !'),
 ].map(command => command.toJSON());
 
@@ -38,6 +39,11 @@ let day_role = null;
 
 client.on('interactionCreate', async interaction => {
     if (!interaction.isChatInputCommand()) return;
+
+    if (interaction.guild != 1434849259747938385) {
+        await interaction.reply({ content: "❌ Ce bot est réservé au coding club petit malin !", ephemeral: true });
+        return;
+    }
 
     if (interaction.commandName === 'ping') {
         await interaction.reply('🏓 Pong !');
@@ -66,6 +72,16 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.commandName === 'dayrole') {
         const role = interaction.options.getRole('role');
+        if (!interaction.member.permissions.has('ManageRoles')) {
+            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les rôles !", ephemeral: true });
+            return;
+        }
+        day_role = role;
+        await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${role.name}** !`, ephemeral: false});
+    }
+
+    if (interaction.commandName === 'today_create') {
+        const guild = interaction.guild;
         if (!interaction.member.permissions.has('ManageRoles')) {
             await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les rôles !", ephemeral: true });
             return;
