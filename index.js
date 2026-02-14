@@ -25,6 +25,11 @@ const commands = [
             .setDescription('La raison de l\'avertissement')
             .setRequired(true)
     ),
+    new SlashCommandBuilder().setName('flag_list').setDescription('Liste des avertissements utilisateur').addUserOption(option =>
+        option.setName('user')
+            .setDescription('L\'utilisateur à check')
+            .setRequired(false)
+    ),
 ].map(command => command.toJSON());
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
@@ -137,6 +142,27 @@ client.on('interactionCreate', async interaction => {
         fs.writeFileSync('./flags.json', JSON.stringify(flags, null, 2));
 
         await interaction.reply({ content: `✅ ${display_name} (${tag}) a été averti pour la raison suivante : **${reason}**`, ephemeral: false });
+    }
+
+    if (interaction.commandName === 'flag_list') {
+        if (!interaction.member.permissions.has('ManageMembers')) {
+            await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les membres !", ephemeral: true });
+            return;
+        }
+        let user = interaction.options.getUser('user');
+
+        if (user) {
+            if (!flags[user.id]) {
+                await interaction.reply({ content: "✅ L'utilisateur n'a aucun avertissement !", ephemeral: true });
+                return;
+            }
+            let response = "📋 **Liste des avertissements de :**\n\n" + user.displayName + "(" + user.tag + ")\n";
+            for (let i = 0; i < flags[user.id].length; i++) {
+                response += `**${i + 1}.** ${flags[user.id][i].raison} - ${flags[user.id][i].date} par ${flags[user.id][i].par}\n`;
+            }
+            await interaction.reply({ content: response, ephemeral: false });
+        }
+        await interaction.reply({ content: "ça arrive bientôt no problemo...", ephemeral: false });
     }
 });
 
