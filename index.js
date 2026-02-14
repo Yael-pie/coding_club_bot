@@ -24,6 +24,8 @@ const commands = [
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
 let day_role = null;
+let day_subject_cat = null;
+let day_subject_room = null;
 
 (async () => {
     try {
@@ -90,7 +92,16 @@ client.on('interactionCreate', async interaction => {
             name: "⌨️ Participants " + new Date().toLocaleDateString('fr-FR'),
             color: "#c9c9c9",
         });
-        await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${day_role.name}** !`, ephemeral: false});
+        day_subject_cat = await interaction.guild.channels.create({
+            name: "Coding Club - " + new Date().toLocaleDateString('fr-FR'),
+            type: 4,
+        });
+        day_subject_room = await interaction.guild.channels.create({
+            name: "🎲-sujet",
+            type: 0,
+            parent: day_subject_cat.id,
+        });
+        await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${day_role.name}** !\n✅ La catégorie d'aujourd'hui a été créée !`, ephemeral: false});
     }
 });
 
