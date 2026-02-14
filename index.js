@@ -1,4 +1,6 @@
 const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, PermissionOverwrites } = require('discord.js');
+const fs = require('fs');
+const flags = JSON.parse(fs.readFileSync('./flags.json', 'utf-8'));
 require('dotenv').config();
 
 const client = new Client({ 
@@ -12,11 +14,6 @@ const client = new Client({
 const commands = [
     new SlashCommandBuilder().setName('ping').setDescription('Répond par Pong ! (Test de connexion)'),
     new SlashCommandBuilder().setName('de').setDescription('Lance un dé à 6 faces'),
-    // new SlashCommandBuilder().setName('dayrole').setDescription('Indique si tu participes au coding club du jour !').addRoleOption(option => 
-    //     option.setName('role')
-    //         .setDescription('Le rôle du coding club du jour à donner aux participants')
-    //         .setRequired(true)
-    // ),
     new SlashCommandBuilder().setName('today_create').setDescription('Crée le rôle, la catégorie coding club du jour et les salons associés à celle-ci !'),
     new SlashCommandBuilder().setName('present').setDescription('Indique si tu participes au coding club du jour !'),
     new SlashCommandBuilder().setName('flag').setDescription('Avertissement').addUserOption(option =>
@@ -81,16 +78,6 @@ client.on('interactionCreate', async interaction => {
         }
     }
 
-    // if (interaction.commandName === 'dayrole') {
-    //     const role = interaction.options.getRole('role');
-    //     if (!interaction.member.permissions.has('ManageRoles')) {
-    //         await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les rôles !", ephemeral: true });
-    //         return;
-    //     }
-    //     day_role = role;
-    //     await interaction.reply({ content: `✅ Le rôle du coding club du jour est maintenant **${role.name}** !`, ephemeral: false});
-    // }
-
     if (interaction.commandName === 'today_create') {
         if (!interaction.member.permissions.has('ManageRoles') || !interaction.member.permissions.has('ManageChannels')) {
             await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les rôles ou de géérer les salons !", ephemeral: true });
@@ -138,6 +125,18 @@ client.on('interactionCreate', async interaction => {
             await interaction.reply({ content: "❌ Tu n'as pas la permission de gérer les membres !", ephemeral: true });
             return;
         }
+        let user = interaction.options.getUser('user');
+        let reason = interaction.options.getString('reason');
+        let display_name = interaction.guild.members.cache.get(user.id).displayName;
+        let tag = user.tag;
+
+        if (!flags[user.id]) {
+            flags[user.id] = [];
+        }
+        flags[user.id].push({ raison: reason, date: new Date().toISOString(), par: interaction.user.tag, nom: display_name, tag: tag });
+        fs.writeFileSync('./flags.json', JSON.stringify(flags, null, 2));
+
+        await interaction.reply({ content: `✅ ${display_name} (${tag}) a été averti pour la raison suivante : **${reason}**`, ephemeral: false });
     }
 });
 
