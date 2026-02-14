@@ -156,7 +156,7 @@ client.on('interactionCreate', async interaction => {
                 await interaction.reply({ content: "✅ L'utilisateur n'a aucun avertissement !", ephemeral: true });
                 return;
             }
-            let response = "📋 **Liste des avertissements de :**\n\n" + user.displayName + "(" + user.tag + ")\n";
+            let response = "📋 **Liste des avertissements de :" + user.displayName + " aka (" + user.tag + ")\n**";
             for (let i = 0; i < flags[user.id].length; i++) {
                 response += `**${i + 1}.** ${flags[user.id][i].raison} - ${flags[user.id][i].date} par ${flags[user.id][i].par}\n`;
             }
